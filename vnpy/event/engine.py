@@ -47,7 +47,9 @@ class EventEngine:
         self._active: bool = False
         self._thread: Thread = Thread(target=self._run)
         self._timer: Thread = Thread(target=self._run_timer)
+        # specific_handler
         self._handlers: defaultdict = defaultdict(list)
+        # general_handler
         self._general_handlers: List = []
 
     def _run(self) -> None:
@@ -78,6 +80,7 @@ class EventEngine:
     def _run_timer(self) -> None:
         """
         Sleep by interval second(s) and then generate a timer event.
+        the event will  be put in queue
         """
         while self._active:
             sleep(self._interval)
@@ -87,6 +90,8 @@ class EventEngine:
     def start(self) -> None:
         """
         Start event engine to process events and generate timer events.
+        _thread.start() will read the queue
+        _timer.start() will generate EVENT_TIMER to queue
         """
         self._active = True
         self._thread.start()
@@ -111,7 +116,7 @@ class EventEngine:
         Register a new handler function for a specific event type. Every
         function can only be registered once for each event type.
         """
-        handler_list: list = self._handlers[type]
+        handler_list: list = self._handlers[type]       #{type} is event type
         if handler not in handler_list:
             handler_list.append(handler)
 

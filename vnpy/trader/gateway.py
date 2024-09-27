@@ -273,6 +273,32 @@ class BaseGateway(ABC):
         """
         return self.default_setting
 
+class LongPortGetWay(BaseGateway):
+    default_setting = {
+
+    }
+
+    def connect(self, setting: dict) -> None:
+        pass
+
+    def close(self) -> None:
+        pass
+
+    def subscribe(self, req: SubscribeRequest) -> None:
+        pass
+
+    def send_order(self, req: OrderRequest) -> str:
+        pass
+
+    def cancel_order(self, req: CancelRequest) -> None:
+        pass
+
+    def query_account(self) -> None:
+        pass
+
+    def query_position(self) -> None:
+        pass
+
 
 class LocalOrderManager:
     """
