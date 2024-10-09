@@ -18,14 +18,14 @@ class Property(object):
     @staticmethod
     def get_property(property_name):
         try:
-            return Property.__props[property_name]
+            return Property.__props.get(property_name)
         except KeyError:
             print("there is no that property name")
             return None
 
 
 def main():
-    print(Property.get_property("API_KEY"))
+    print(Property.get_property("LONGPORT_APP_KEY"))
 
 
 if __name__ == '__main__':

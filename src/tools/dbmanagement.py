@@ -1,5 +1,5 @@
 import pymysql.cursors
-from tools.property import Property
+from src.tools.property import Property
 
 
 class DBManager:

@@ -136,6 +136,10 @@ class Exchange(Enum):
     # Special Function
     LOCAL = "LOCAL"         # For local generated data
 
+    HK = "HK"
+    SH = 'SH'
+    SZ = 'SZ'
+
 
 class Currency(Enum):
     """
@@ -156,3 +160,15 @@ class Interval(Enum):
     DAILY = "d"
     WEEKLY = "w"
     TICK = "tick"
+
+class Period(Enum):
+    UNKNOWN_PERIOD = 0
+    ONE_MINUTE = 1
+    FIVE_MINUTE = 5
+    FIFTEEN_MINUTE = 15
+    THIRTY_MINUTE = 30
+    SIXTY_MINUTE = 60
+    DAY = 1000
+    WEEK = 2000
+    MONTH = 3000
+    YEAR = 4000

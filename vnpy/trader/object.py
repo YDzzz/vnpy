@@ -6,6 +6,8 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from logging import INFO
 
+from longport.openapi import Period
+
 from .constant import Direction, Exchange, Interval, Offset, Status, Product, OptionType, OrderType
 
 ACTIVE_STATUSES = set([Status.SUBMITTING, Status.NOTTRADED, Status.PARTTRADED])
@@ -366,6 +368,22 @@ class CancelRequest:
         self.vt_symbol: str = f"{self.symbol}.{self.exchange.value}"
 
 
+# @dataclass
+# class HistoryRequest:
+#     """
+#     Request sending to specific gateway for querying history data.
+#     """
+#
+#     symbol: str
+#     exchange: Exchange
+#     start: datetime
+#     end: datetime = None
+#     interval: Interval = None
+#
+#     def __post_init__(self) -> None:
+#         """"""
+#         self.vt_symbol: str = f"{self.symbol}.{self.exchange.value}"
+
 @dataclass
 class HistoryRequest:
     """
@@ -374,14 +392,13 @@ class HistoryRequest:
 
     symbol: str
     exchange: Exchange
-    start: datetime
+    start: datetime = None
     end: datetime = None
-    interval: Interval = None
+    interval: Period = None
 
     def __post_init__(self) -> None:
         """"""
         self.vt_symbol: str = f"{self.symbol}.{self.exchange.value}"
-
 
 @dataclass
 class QuoteRequest:
