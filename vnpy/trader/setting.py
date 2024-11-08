@@ -25,17 +25,17 @@ SETTINGS: Dict[str, Any] = {
     "email.sender": "",
     "email.receiver": "",
 
-    "datafeed.name": "",
-    "datafeed.username": "",
-    "datafeed.password": "",
+    "datafeed.key": "",
+    "datafeed.app_secret": "",
+    "datafeed.access_token": "",
 
     "database.timezone": get_localzone_name(),
     "database.name": "sqlite",
-    "database.database": "database.db",
-    "database.host": "",
-    "database.port": 0,
-    "database.user": "",
-    "database.password": ""
+    "database.database": "vnpy",
+    "database.host": "localhost",
+    "database.port": 3307,
+    "database.user": "root",
+    "database.password": "123456"
 }
 
 

@@ -394,7 +394,7 @@ class HistoryRequest:
     exchange: Exchange
     start: datetime = None
     end: datetime = None
-    interval: Period = None
+    interval: Interval = None
 
     def __post_init__(self) -> None:
         """"""

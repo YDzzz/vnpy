@@ -3,9 +3,9 @@ from types import ModuleType
 from typing import Optional, List, Callable
 from importlib import import_module
 
-from .object import HistoryRequest, TickData, BarData
-from .setting import SETTINGS
-from .locale import _
+from vnpy.trader.object import HistoryRequest, TickData, BarData
+from vnpy.trader.setting import SETTINGS
+from vnpy.trader.locale import _
 
 
 class BaseDatafeed(ABC):

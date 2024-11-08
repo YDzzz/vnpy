@@ -1,25 +1,22 @@
 from datetime import datetime
 from typing import List
 
-from dateutil.rrule import DAILY
-from vnpy_ctp.api import TdApi
 
-from src.MySqlDataBase import MySqlDataBase
+from src.vnpy_datamanager.MySqlDataBase import MySqlDataBase
 from vnpy.event import EventEngine, EVENT_TIMER
-from vnpy.trader.constant import Exchange, Direction, Interval
+from vnpy.trader.constant import Exchange, Interval
 from vnpy.trader.gateway import BaseGateway
 from vnpy.trader.object import CancelRequest, OrderRequest, SubscribeRequest, OrderData, HistoryRequest, BarData
-from src.tools.property import Property
-from longport.openapi import TradeContext, Config, OrderType, OrderSide, TimeInForceType, QuoteContext, \
+from longport.openapi import TradeContext, Config, TimeInForceType, QuoteContext, \
     AdjustType, Period
 
 
 class LongPortGateway(BaseGateway):
     default_name: str = ''
     default_setting: dict = {
-        'LONGPORT_APP_KEY': Property.get_property("LONGPORT_APP_KEY"),
-        'LONGPORT_APP_SECRET': Property.get_property("LONGPORT_APP_SECRET"),
-        'LONGPORT_ACCESS_TOKEN': Property.get_property("LONGPORT_ACCESS_TOKEN"),
+        'LONGPORT_APP_KEY': '',
+        'LONGPORT_APP_SECRET': '',
+        'LONGPORT_ACCESS_TOKEN': '',
     }
 
     def __init__(self, event_engine: EventEngine, gateway_name: str):
@@ -129,7 +126,7 @@ class LongPortGateway(BaseGateway):
         return bardata_list
 
     def query_candlesticks(self, req: HistoryRequest) -> List[BarData]:
-        resp = self.quote_ctx.candlesticks(req.vt_symbol, req.interval, 1000, AdjustType.NoAdjust)
+        resp = self.quote_ctx.candlesticks(req.vt_symbol, req.interval, 2, AdjustType.NoAdjust)
         bardata_list: List[BarData] = []
         interval: Interval
         if req.interval == Period.Day:
@@ -158,14 +155,11 @@ class LongPortGateway(BaseGateway):
         return bardata_list
 
 
-class LongPortApi(TdApi):
-    pass
-
 if __name__ == '__main__':
     setting = {
-        'LONGPORT_APP_KEY': Property.get_property("LONGPORT_APP_KEY"),
-        'LONGPORT_APP_SECRET': Property.get_property("LONGPORT_APP_SECRET"),
-        'LONGPORT_ACCESS_TOKEN': Property.get_property("LONGPORT_ACCESS_TOKEN"),
+        'LONGPORT_APP_KEY': '',
+        'LONGPORT_APP_SECRET': '',
+        'LONGPORT_ACCESS_TOKEN': '',
     }
     a = LongPortGateway(EventEngine(), 'longport')
     a.connect(setting)

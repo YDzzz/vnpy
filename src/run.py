@@ -4,10 +4,10 @@ from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
 
-from src.LongPortGateway import LongPortGateway
+from vnpy_LongPort import LongPortGateway
 
 
-# from vnpy_datamanager import DataManagerApp
+from vnpy_datamanager import DataManagerApp
 
 
 def main():
@@ -25,7 +25,7 @@ def main():
     # main_engine.add_app(CtaStrategyApp)
     # main_engine.add_app(CtaBacktesterApp)
     #
-    # main_engine.add_app(DataManagerApp)
+    main_engine.add_app(DataManagerApp)
 
 
     main_window = MainWindow(main_engine, event_engine)
