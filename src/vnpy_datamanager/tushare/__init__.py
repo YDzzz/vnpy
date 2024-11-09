@@ -20,37 +20,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-from pathlib import Path
-
-import importlib_metadata
-from vnpy.trader.app import BaseApp
-
-from .engine import APP_NAME, ManagerEngine
 
 import importlib_metadata
 
-from .tushare.tushare_datafeed import TushareDatafeed as Datafeed
+from .tushare_datafeed import TushareDatafeed as Datafeed
 
 
 try:
-    __version__ = importlib_metadata.version("vnpy_datafeed")
+    __version__ = importlib_metadata.version("vnpy_tushare")
 except importlib_metadata.PackageNotFoundError:
     __version__ = "dev"
-
-
-try:
-    __version__ = importlib_metadata.version("vnpy_datamanager")
-except importlib_metadata.PackageNotFoundError:
-    __version__ = "dev"
-
-
-class DataManagerApp(BaseApp):
-    """"""
-
-    app_name: str = APP_NAME
-    app_module: str = __module__
-    app_path: Path = Path(__file__).parent
-    display_name: str = "数据管理"
-    engine_class: ManagerEngine = ManagerEngine
-    widget_name: str = "ManagerWidget"
-    icon_name: str = str(app_path.joinpath("ui", "manager.ico"))

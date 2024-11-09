@@ -28,6 +28,8 @@ SETTINGS: Dict[str, Any] = {
     "datafeed.key": "",
     "datafeed.app_secret": "",
     "datafeed.access_token": "",
+    'datafeed.name': '',
+    'datafeed.password': '',
 
     "database.timezone": get_localzone_name(),
     "database.name": "sqlite",

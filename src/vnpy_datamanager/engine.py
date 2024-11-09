@@ -6,7 +6,8 @@ from vnpy.trader.engine import BaseEngine, MainEngine, EventEngine
 from vnpy.trader.constant import Interval, Exchange
 from vnpy.trader.object import BarData, TickData, ContractData, HistoryRequest
 from .mysql_database import BaseDatabase, get_database, BarOverview, DB_TZ
-from .my_datafeed import BaseDatafeed, get_datafeed
+# from .LongPort_datafeed import BaseDatafeed, get_datafeed
+from .tushare.tushare_datafeed import BaseDatafeed, get_datafeed
 from vnpy.trader.utility import ZoneInfo
 
 APP_NAME = "DataManager"

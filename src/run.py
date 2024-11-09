@@ -4,7 +4,7 @@ from vnpy.event import EventEngine
 from vnpy.trader.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
 
-from vnpy_LongPort import LongPortGateway
+from LongPort_gateway import LongPortgateway
 
 
 from vnpy_datamanager import DataManagerApp
@@ -18,7 +18,7 @@ def main():
 
     main_engine = MainEngine(event_engine)
 
-    main_engine.add_gateway(LongPortGateway)
+    main_engine.add_gateway(LongPortgateway)
 
 
 
