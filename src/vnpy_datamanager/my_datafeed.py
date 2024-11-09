@@ -1,12 +1,8 @@
-from datetime import datetime, timedelta, time
+from datetime import datetime, timedelta
 from typing import List, Optional, Callable
 
-import pandas
 from longport.openapi import Config, QuoteContext, Period, AdjustType
-from pandas import DataFrame
-from sqlalchemy import create_engine
 
-from src.tools.property import Property
 from vnpy.trader.setting import SETTINGS
 from vnpy.trader.constant import Exchange, Interval
 from vnpy.trader.object import BarData, HistoryRequest

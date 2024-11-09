@@ -13,3 +13,4 @@ plotly==5.20.0
 importlib-metadata==7.0.2
 tqdm==4.66.2
 longport
+peewee

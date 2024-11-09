@@ -325,9 +325,9 @@ class LongPortMdApi:
         if not self.connect_status:
             try:
                 self.quote_ctx: QuoteContext = QuoteContext(Config(
-                    app_key=self.key,
-                    app_secret=self.secret,
-                    access_token=self.access_token
+                    app_key=key,
+                    app_secret=secret,
+                    access_token=access_token
                 ))
             except:
                 self.gateway.write_log(f"行情登录失败")
@@ -602,6 +602,7 @@ class LongPortTdApi:
             frozen=(data["total_amount"] - data["avail_amount"]) / 10000,
             gateway_name=self.gateway_name
         )
+        print(account)
         if data["account_type"] == 4:
             self.margin_trading = True
         self.gateway.on_account(account)

@@ -5,7 +5,7 @@ from typing import List, Optional, Callable
 from vnpy.trader.engine import BaseEngine, MainEngine, EventEngine
 from vnpy.trader.constant import Interval, Exchange
 from vnpy.trader.object import BarData, TickData, ContractData, HistoryRequest
-from .MySqlDataBase import BaseDatabase, get_database, BarOverview, DB_TZ
+from .mysql_database import BaseDatabase, get_database, BarOverview, DB_TZ
 from .my_datafeed import BaseDatafeed, get_datafeed
 from vnpy.trader.utility import ZoneInfo
 
