@@ -60,7 +60,7 @@ class MainEngine:
             self.event_engine = EventEngine()
         self.event_engine.start()
 
-        self.gateways: Dict[str, LongPortGateway] = {}
+        self.gateways: Dict[str, BaseGateway] = {}
         self.engines: Dict[str, BaseEngine] = {}
         self.apps: Dict[str, BaseApp] = {}
         self.exchanges: List[Exchange] = []

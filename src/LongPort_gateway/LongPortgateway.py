@@ -5,7 +5,8 @@ from typing import Dict, List
 from pathlib import Path
 from decimal import Decimal
 
-from longport.openapi import Market, OrderStatus, OrderSide, Config, QuoteContext, SubType, TradeContext
+from longport.openapi import Market, OrderStatus, OrderSide, Config, QuoteContext, SubType, TradeContext, \
+    TimeInForceType
 from longport.openapi import OrderType as LongPortOrderType
 
 from src.tools.property import Property
@@ -96,24 +97,24 @@ def EXCHANGE_LPT2VT(exchange):
 
 def EXCHANGE_VT2LPT(exchange):
     if exchange == Exchange.SEHK:
-        return Market.HK
+        return 'HK'
     elif exchange == Exchange.AMEX:
-        return Market.US
+        return 'US'
 
 
 # 多空方向映射
 def SIDE_LPT2VT(order_side):
     if order_side == OrderSide.Buy:
-        return (Direction.LONG, Offset.OPEN)
+        return (Direction.LONG, Offset.NONE)
     elif order_side == OrderSide.Sell:
-        return (Direction.LONG, Offset.CLOSE)
+        return (Direction.LONG, Offset.NONE)
 
 
 def SIDE_VT2LPT(direction_offset):
     direction, offset = direction_offset
-    if direction == Direction.LONG and offset == Offset.OPEN:
+    if direction == Direction.LONG and offset == Offset.NONE:
         return OrderSide.Buy
-    elif direction == Direction.LONG and offset == Offset.CLOSE:
+    elif direction == Direction.LONG and offset == Offset.NONE:
         return OrderSide.Sell
 
 
@@ -383,6 +384,7 @@ class LpTdApi:
         """构造函数"""
         super().__init__()
 
+        self.margin_trading = None
         self.trade_ctx = None
         self.gateway: LongPortgateway = gateway
         self.gateway_name: str = gateway.gateway_name
@@ -739,25 +741,38 @@ class LpTdApi:
         suffix: str = str(self.order_count).rjust(6, "0")
         orderid: str = f"{self.prefix}_{suffix}"
 
-        exchange: Exchange = EXCHANGE_VT2LPT(req.exchange)
-        lpt_symbol: str = f"{exchange}.{req.symbol}"
+        lpt_symbol: str = f"{req.symbol}.{req.exchange.value}"
 
         order_req: dict = {
-            "cl_order_id": orderid,
             "symbol": lpt_symbol,
             "order_type": ORDERTYPE_VT2LPT(req.type),
             "volume": int(req.volume),
-            "price": int(Decimal(str(req.price)) * 10000),  # int(req.price * 10000),
+            "price": int(Decimal(str(req.price))),  # int(req.price * 10000),
             "side": SIDE_VT2LPT((req.direction, req.offset))
         }
 
         self.reqid += 1
-        self.order(order_req, self.reqid)
-
         order: OrderData = req.create_order_data(orderid, self.gateway_name)
+        try:
+            self.order(order_req)
+        except Exception as e:
+            self.gateway.write_log('request is failed to sent')
+            order.status = Status.REJECTED
+
         self.orders[orderid] = order
         self.gateway.on_order(order)
         return order.vt_orderid
+
+    def order(self, order_req: dict):
+        resp = self.trade_ctx.submit_order(
+            order_req['symbol'],
+            order_req['order_type'],
+            order_req['side'],
+            order_req['volume'],
+            TimeInForceType.Day,
+            submitted_price=order_req['price'],
+            remark=f"from vnpy"
+        )
 
     def query_order(self, pos_str: str = "") -> None:
         """查询未成交委托"""
@@ -785,7 +800,10 @@ class LpTdApi:
         sysid: str = self.orderid_sysid_map.get(req.orderid, req.orderid)
 
         cancel_req: dict = {"order_id": sysid}
-        self.cancelOrder(cancel_req, self.reqid)
+        self.cancelOrder(cancel_req)
+
+    def cancelOrder(self, cancel_req: dict):
+        self.trade_ctx.cancel_order(cancel_req['order_id'])
 
     def query_account(self) -> AccountData:
         """查询资金"""
@@ -795,7 +813,6 @@ class LpTdApi:
         frozen: float = float(resp[0].cash_infos[0].frozen_cash)
         account: AccountData = AccountData('trader', 'LongPort', balance, frozen)
         self.gateway.on_account(account)
-
 
     def query_position(self) -> None:
         """查询持仓"""
@@ -834,7 +851,6 @@ def generate_cfg(ip: str, port: int, username: str, password: str) -> str:
 
 
 if __name__ == '__main__':
-
     key = '423fb4ecbf32328a8af12f63d5938a25'
     secret = '82424c3cdbc3663b13735d4a6d1149d684304fca7388127d77e66fefd1dd9a29'
     token = 'm_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsb25nYnJpZGdlIiwic3ViIjoiYWNjZXNzX3Rva2VuIiwiZXhwIjoxNzM1MTIyNDkyLCJpYXQiOjE3MjczNDY0OTQsImFrIjoiNDIzZmI0ZWNiZjMyMzI4YThhZjEyZjYzZDU5MzhhMjUiLCJhYWlkIjoyMDQwOTQ3NCwiYWMiOiJsYl9wYXBlcnRyYWRpbmciLCJtaWQiOjE0MTk2NDI1LCJzaWQiOiJIRzA2OGdpb1FIellFREtmVkwzd013PT0iLCJibCI6MSwidWwiOjAsImlrIjoibGJfcGFwZXJ0cmFkaW5nXzIwNDA5NDc0In0.ZQ-J52s1FwSPBCT7n_6vsRpw26VYFCHJSa_Xrf8D0aGIgwuBaWPjqqTK2r41kl7W5e08LoHe-jPLSib7wh70_w8zs5tleyNZb_a7QY6HBaaFaTDUqEwoiDZDsURmAHEIEZyF7FY9hnNSX-SrhprzG3n8cZ2DoVse635_MWNPkD_79N_Xu5Sic7ZWVMTgjRuBLC1VQzqjdBwLo2Lr-EM2Ow51J8sVx6TLq8y352sGnrWfS0lGgoU802P7PKlKvDpNe39r8cv2-57g5kWMikcoEjlNGdF5V9vBYEIi12PREQupCr2O6bX7sUlpcYBPHEJpVefMYba_0Cw2BKAeqF_Lul_QL8opAPoE2O6tVdvGOKYsIMcyoZBD-Zs3zLkkLeu-KCDs4VquKHnE-TCFvO0orI2YbOomC7nqvRPTL8GijvEboR7Hv1YZZJuqF2adx5cFgje52Qqzia6qx2Mj7Ht3K0h9ONpYRhwNyiRF7BfOA6D6CXgDmkT-inAWU67r3TF4v378O1tjj0Oo9aaBiv7dosNqF1vxnRzZT9N93ITIXP7djlCz1Pgyrv4ZmuNayeLReUtX0N3nUYP8j4PkDeSMQjUeZ1xN3CKwwRxA2D9FEFjU30r2p2TBUG1LhRMEiCoSC0FxavqCFPI-7DfS5zBQLg6FQvr7nc0FT-9165PJ-6c'
@@ -843,5 +859,13 @@ if __name__ == '__main__':
                     app_secret=secret,
                     access_token=token)
     ctx = TradeContext(config)
-    resp = ctx.stock_positions()
-    print(resp.channels)
+    resp = ctx.submit_order(
+            "700.HK",
+            ORDERTYPE_VT2LPT(OrderType.LIMIT),
+            OrderSide.Buy,
+            100,
+            TimeInForceType.Day,
+            submitted_price=Decimal(380),
+            remark="Hello from Python SDK",
+        )
+    print(resp.order_id)
