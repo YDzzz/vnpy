@@ -1,1 +1,1 @@
-from . import LongPortgateway
+from .LongPortgateway import LongPortgateway

@@ -1,7 +1,7 @@
 import sys
 import json
 from datetime import datetime
-from typing import Dict, List, Any
+from typing import Dict, List
 from pathlib import Path
 from decimal import Decimal
 
@@ -9,7 +9,7 @@ from longport.openapi import Market, OrderStatus, OrderSide, Config, QuoteContex
 from longport.openapi import OrderType as LongPortOrderType
 
 from src.tools.property import Property
-from vnpy.event import EventEngine
+from src.event import EventEngine
 from vnpy.trader.constant import (
     Direction,
     Exchange,
@@ -42,49 +42,80 @@ def MK_LPT2VT(market):
         return Exchange.AMEX
 
 
-MK_VT2LPT: Dict = {v: k for k, v in MK_LPT2VT.items()}
+def MK_VT2LPT(exchange):
+    if exchange == Exchange.SEHK:
+        return Market.HK
+    elif exchange == Exchange.AMEX:
+        return Market.US
+
+
+# 委托状态映射
+def ORDERSTATUS_LPT2VT(status):
+    if status == OrderStatus.NotReported:
+        return Status.SUBMITTING
+    elif status == OrderStatus.New:
+        return Status.NOTTRADED
+    elif status == OrderStatus.PartialFilled:
+        return Status.PARTTRADED
+    elif status == OrderStatus.Filled:
+        return Status.ALLTRADED
+    elif status == OrderStatus.PendingCancel:
+        return Status.SUBMITTING
+    elif status == OrderStatus.Canceled:
+        return Status.CANCELLED
+    elif status == OrderStatus.Expired:
+        return Status.CANCELLED
+    elif status == OrderStatus.PartialWithdrawal:
+        return Status.CANCELLED
+    elif status == OrderStatus.Rejected:
+        return Status.REJECTED
+
 
 # 委托类型映射
-ORDERSTATUS_LPT2VT: Dict = {
-    OrderStatus.NotReported: Status.SUBMITTING,
-    OrderStatus.New: Status.NOTTRADED,
-    OrderStatus.PartialFilled: Status.PARTTRADED,
-    OrderStatus.Filled: Status.ALLTRADED,
-    OrderStatus.PendingCancel: Status.SUBMITTING,
-    OrderStatus.Canceled: Status.CANCELLED,
-    OrderStatus.Expired: Status.CANCELLED,
-    OrderStatus.PartialWithdrawal: Status.CANCELLED,
-    OrderStatus.Rejected: Status.REJECTED
-}
+def ORDERTYPE_LPT2VT(order_type):
+    if order_type == LongPortOrderType.ELO:
+        return OrderType.LIMIT
+    elif order_type == LongPortOrderType.MO:
+        return OrderType.MARKET
 
-# 条件单类型映射
-ORDERTYPE_LPT2VT: Dict = {
-    LongPortOrderType.ELO: OrderType.LIMIT,
-    LongPortOrderType.MO: OrderType.MARKET
-}
-ORDERTYPE_VT2LPT: Dict = {
-    v: k for k, v in ORDERTYPE_LPT2VT.items()
-}
+
+def ORDERTYPE_VT2LPT(order_type):
+    if order_type == OrderType.LIMIT:
+        return LongPortOrderType.ELO
+    elif order_type == OrderType.MARKET:
+        return LongPortOrderType.MO
+
 
 # 交易所映射
-EXCHANGE_HFT2VT: Dict = {
-    "SH": Exchange.SSE,
-    "SZ": Exchange.SZSE,
-    Market.HK: Exchange.SEHK,
-    Market.US: Exchange.AMEX
-}
-EXCHANGE_VT2HFT: Dict = {
-    v: k for k, v in EXCHANGE_HFT2VT.items()
-}
+def EXCHANGE_LPT2VT(exchange):
+    if exchange == Market.HK:
+        return Exchange.SEHK
+    elif exchange == Market.US:
+        return Exchange.AMEX
+
+
+def EXCHANGE_VT2LPT(exchange):
+    if exchange == Exchange.SEHK:
+        return Market.HK
+    elif exchange == Exchange.AMEX:
+        return Market.US
+
 
 # 多空方向映射
-SIDE_LPT2VT: Dict = {
-    OrderSide.Buy: (Direction.LONG, Offset.OPEN),
-    OrderSide.Sell: (Direction.LONG, Offset.CLOSE),
-}
-SIDE_VT2LPT: Dict = {
-    v: k for k, v in SIDE_LPT2VT.items()
-}
+def SIDE_LPT2VT(order_side):
+    if order_side == OrderSide.Buy:
+        return (Direction.LONG, Offset.OPEN)
+    elif order_side == OrderSide.Sell:
+        return (Direction.LONG, Offset.CLOSE)
+
+
+def SIDE_VT2LPT(direction_offset):
+    direction, offset = direction_offset
+    if direction == Direction.LONG and offset == Offset.OPEN:
+        return OrderSide.Buy
+    elif direction == Direction.LONG and offset == Offset.CLOSE:
+        return OrderSide.Sell
+
 
 # 其他常量
 MAX_FLOAT = sys.float_info.max  # 浮点数极限值
@@ -107,7 +138,7 @@ class LongPortgateway(BaseGateway):
         'LONGPORT_ACCESS_TOKEN': Property.get_property('LONGPORT_ACCESS_TOKEN'),
     }
 
-    exchanges: List[str] = [Exchange.SSE, Exchange.SZSE]
+    exchanges: List[str] = [Exchange.HK, Exchange.AMEX]
 
     def __init__(self, event_engine: EventEngine, gateway_name: str) -> None:
         """构造函数"""
@@ -304,16 +335,12 @@ class LpMdApi:
     def subscrbie(self, req: SubscribeRequest) -> None:
         """订阅行情"""
         if self.login_status:
-            exchange = MK_VT2LPT.get(req.exchange, "")
+            exchange = MK_VT2LPT(req.exchange)
             self.quote_ctx.subscribe([f'{req.symbol}.{exchange}'], [SubType.Quote])
 
     # 合约查询
     def query_contract(self) -> None:
-        """查询合约"""
-        # 0 -> SSE, SZSE
-        # 1 -> SSE,
-        # 2 -> SZSE
-        self.subscribeBaseInfo(0)
+        pass
 
     def onHKBaseInfo(self, code, data) -> None:
         """香港合约查询回报"""
@@ -417,7 +444,7 @@ class LpTdApi:
         timestamp: str = f"{data['order_date']} {data['order_time']}"
         dt: datetime = generate_datetime(timestamp)
 
-        direction, offset = SIDE_LPT2VT[data["side"]]
+        direction, offset = SIDE_LPT2VT(data["side"])
 
         order: OrderData = self.orders.get(orderid, None)
         if not order:
@@ -425,14 +452,14 @@ class LpTdApi:
                 orderid=orderid,
                 gateway_name=self.gateway_name,
                 symbol=symbol,
-                exchange=EXCHANGE_HFT2VT[exchange],
+                exchange=EXCHANGE_LPT2VT(exchange),
                 direction=direction,
                 offset=offset,
-                type=ORDERTYPE_LPT2VT.get(data["order_type"], OrderType.MARKET),
+                type=ORDERTYPE_LPT2VT(data["order_type"]),
                 price=data["price"] / 10000,
                 volume=data["volume"],
                 traded=data["filled_volume"],
-                status=ORDERSTATUS_LPT2VT[data["order_status"]],
+                status=ORDERSTATUS_LPT2VT(data["order_status"]),
                 datetime=dt,
             )
             self.orders[orderid] = order
@@ -440,7 +467,7 @@ class LpTdApi:
             order.datetime = dt
 
         order.traded = data["filled_volume"]
-        order.status = ORDERSTATUS_LPT2VT[data["order_status"]]
+        order.status = ORDERSTATUS_LPT2VT(data["order_status"])
 
         self.gateway.on_order(order)
 
@@ -456,7 +483,7 @@ class LpTdApi:
         timestamp: str = f"{data['trade_date']} {data['trade_time']}"
         dt: datetime = generate_datetime(timestamp)
 
-        direction, offset = SIDE_LPT2VT[data["side"]]
+        direction, offset = SIDE_LPT2VT(data["side"])
 
         # if data["report_type"] == TradeReportType_Normal:
         #     trade: TradeData = TradeData(
@@ -524,7 +551,7 @@ class LpTdApi:
             pos = PositionData(
                 gateway_name=self.gateway_name,
                 symbol=symbol,
-                exchange=EXCHANGE_HFT2VT[exchange],
+                exchange=EXCHANGE_LPT2VT(exchange),
                 direction=Direction.SHORT,
             )
             self.short_positions[symbol] = pos
@@ -552,7 +579,7 @@ class LpTdApi:
         pos: PositionData = PositionData(
             gateway_name=self.gateway_name,
             symbol=symbol,
-            exchange=EXCHANGE_HFT2VT[exchange],
+            exchange=EXCHANGE_LPT2VT(exchange),
             direction=Direction.NET,
             volume=data["volume"],
             price=data["cost_price"] / 10000,
@@ -597,19 +624,19 @@ class LpTdApi:
             timestamp: str = f"{data['order_date']} {data['order_time']}"
             dt: datetime = generate_datetime(timestamp)
 
-            direction, offset = SIDE_LPT2VT[data["side"]]
+            direction, offset = SIDE_LPT2VT(data["side"])
 
             order: OrderData = OrderData(
                 orderid=orderid,
                 gateway_name=self.gateway_name,
                 symbol=symbol,
-                exchange=EXCHANGE_HFT2VT[exchange],
+                exchange=EXCHANGE_LPT2VT(exchange),
                 direction=direction,
                 offset=offset,
-                type=ORDERTYPE_LPT2VT.get(data["order_type"], OrderType.MARKET),
+                type=ORDERTYPE_LPT2VT(data["order_type"]),
                 price=data["price"] / 10000,
                 volume=data["volume"],
-                status=ORDERSTATUS_LPT2VT[data["order_status"]],
+                status=ORDERSTATUS_LPT2VT(data["order_status"]),
                 traded=data["filled_volume"],
                 datetime=dt,
             )
@@ -645,14 +672,14 @@ class LpTdApi:
             timestamp: str = f"{data['trade_date']} {data['trade_time']}"
             dt: datetime = generate_datetime(timestamp)
 
-            direction, offset = SIDE_LPT2VT[data["side"]]
+            direction, offset = SIDE_LPT2VT(data["side"])
 
             trade: TradeData = TradeData(
                 tradeid=data["report_no"],
                 orderid=orderid,
                 gateway_name=self.gateway_name,
                 symbol=symbol,
-                exchange=EXCHANGE_HFT2VT[exchange],
+                exchange=EXCHANGE_LPT2VT(exchange),
                 direction=direction,
                 offset=offset,
                 price=data["price"] / 10000,
@@ -691,10 +718,12 @@ class LpTdApi:
             ))
 
             self.connect_status = True
+            self.query_account()
+            self.query_position()
 
     def send_order(self, req: OrderRequest) -> str:
         """委托下单"""
-        if req.type not in ORDERTYPE_VT2LPT:
+        if req.type not in [OrderType.LIMIT, OrderType.MARKET]:
             self.gateway.write_log(f"当前接口不支持该类型的委托{req.type.value}")
             return ""
 
@@ -710,16 +739,16 @@ class LpTdApi:
         suffix: str = str(self.order_count).rjust(6, "0")
         orderid: str = f"{self.prefix}_{suffix}"
 
-        exchange: Exchange = EXCHANGE_VT2HFT[req.exchange]
+        exchange: Exchange = EXCHANGE_VT2LPT(req.exchange)
         lpt_symbol: str = f"{exchange}.{req.symbol}"
 
         order_req: dict = {
             "cl_order_id": orderid,
             "symbol": lpt_symbol,
-            "order_type": ORDERTYPE_VT2LPT[req.type],
+            "order_type": ORDERTYPE_VT2LPT(req.type),
             "volume": int(req.volume),
             "price": int(Decimal(str(req.price)) * 10000),  # int(req.price * 10000),
-            "side": SIDE_VT2LPT[(req.direction, req.offset)]
+            "side": SIDE_VT2LPT((req.direction, req.offset))
         }
 
         self.reqid += 1
@@ -758,20 +787,20 @@ class LpTdApi:
         cancel_req: dict = {"order_id": sysid}
         self.cancelOrder(cancel_req, self.reqid)
 
-    def query_account(self) -> None:
+    def query_account(self) -> AccountData:
         """查询资金"""
         self.reqid += 1
-        self.queryCash({}, self.reqid)
+        resp = self.trade_ctx.account_balance()
+        balance: float = float(resp[0].total_cash)
+        frozen: float = float(resp[0].cash_infos[0].frozen_cash)
+        account: AccountData = AccountData('trader', 'LongPort', balance, frozen)
+        self.gateway.on_account(account)
+
 
     def query_position(self) -> None:
         """查询持仓"""
-        hft_req: dict = {
-            "pos_str": "",
-            "query_num": 500
-        }
-
-        self.reqid += 1
-        self.queryPositions(hft_req, self.reqid)
+        positions = self.trade_ctx.stock_positions()
+        print(positions)
 
         # if self.margin_trading:
         #     self.reqid += 1
@@ -780,7 +809,8 @@ class LpTdApi:
     def close(self) -> None:
         """关闭连接"""
         if self.connect_status:
-            self.exit()
+            del self.trade_ctx
+            self.gateway.write_log('close td connection')
 
 
 def generate_datetime(timestamp: str) -> datetime:
@@ -801,3 +831,17 @@ def generate_cfg(ip: str, port: int, username: str, password: str) -> str:
     }
     cfg: str = json.dumps(setting, separators=("|", ":"))
     return cfg
+
+
+if __name__ == '__main__':
+
+    key = '423fb4ecbf32328a8af12f63d5938a25'
+    secret = '82424c3cdbc3663b13735d4a6d1149d684304fca7388127d77e66fefd1dd9a29'
+    token = 'm_eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJsb25nYnJpZGdlIiwic3ViIjoiYWNjZXNzX3Rva2VuIiwiZXhwIjoxNzM1MTIyNDkyLCJpYXQiOjE3MjczNDY0OTQsImFrIjoiNDIzZmI0ZWNiZjMyMzI4YThhZjEyZjYzZDU5MzhhMjUiLCJhYWlkIjoyMDQwOTQ3NCwiYWMiOiJsYl9wYXBlcnRyYWRpbmciLCJtaWQiOjE0MTk2NDI1LCJzaWQiOiJIRzA2OGdpb1FIellFREtmVkwzd013PT0iLCJibCI6MSwidWwiOjAsImlrIjoibGJfcGFwZXJ0cmFkaW5nXzIwNDA5NDc0In0.ZQ-J52s1FwSPBCT7n_6vsRpw26VYFCHJSa_Xrf8D0aGIgwuBaWPjqqTK2r41kl7W5e08LoHe-jPLSib7wh70_w8zs5tleyNZb_a7QY6HBaaFaTDUqEwoiDZDsURmAHEIEZyF7FY9hnNSX-SrhprzG3n8cZ2DoVse635_MWNPkD_79N_Xu5Sic7ZWVMTgjRuBLC1VQzqjdBwLo2Lr-EM2Ow51J8sVx6TLq8y352sGnrWfS0lGgoU802P7PKlKvDpNe39r8cv2-57g5kWMikcoEjlNGdF5V9vBYEIi12PREQupCr2O6bX7sUlpcYBPHEJpVefMYba_0Cw2BKAeqF_Lul_QL8opAPoE2O6tVdvGOKYsIMcyoZBD-Zs3zLkkLeu-KCDs4VquKHnE-TCFvO0orI2YbOomC7nqvRPTL8GijvEboR7Hv1YZZJuqF2adx5cFgje52Qqzia6qx2Mj7Ht3K0h9ONpYRhwNyiRF7BfOA6D6CXgDmkT-inAWU67r3TF4v378O1tjj0Oo9aaBiv7dosNqF1vxnRzZT9N93ITIXP7djlCz1Pgyrv4ZmuNayeLReUtX0N3nUYP8j4PkDeSMQjUeZ1xN3CKwwRxA2D9FEFjU30r2p2TBUG1LhRMEiCoSC0FxavqCFPI-7DfS5zBQLg6FQvr7nc0FT-9165PJ-6c'
+
+    config = Config(app_key=key,
+                    app_secret=secret,
+                    access_token=token)
+    ctx = TradeContext(config)
+    resp = ctx.stock_positions()
+    print(resp.channels)

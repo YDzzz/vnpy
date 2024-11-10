@@ -1,10 +1,10 @@
 # flake8: noqa
 from vnpy.event import EventEngine
 
-from vnpy.trader.engine import MainEngine
+from src.engine import MainEngine
 from vnpy.trader.ui import MainWindow, create_qapp
 
-from LongPort_gateway import LongPortgateway
+from src.LongPort_gateway import LongPortgateway
 
 
 from vnpy_datamanager import DataManagerApp
@@ -18,7 +18,7 @@ def main():
 
     main_engine = MainEngine(event_engine)
 
-    main_engine.add_gateway(LongPortgateway)
+    main_engine.add_gateway(LongPortgateway, "LongPort")
 
 
 

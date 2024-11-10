@@ -9,7 +9,7 @@ from longport.openapi import Market, OrderStatus, OrderSide, Config, QuoteContex
 from longport.openapi import OrderType as LongPortOrderType
 
 from src.tools.property import Property
-from vnpy.event import EventEngine
+from src.event import EventEngine
 from vnpy.trader.constant import (
     Direction,
     Exchange,
