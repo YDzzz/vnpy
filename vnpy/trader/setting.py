@@ -25,6 +25,10 @@ SETTINGS: Dict[str, Any] = {
     "email.sender": "",
     "email.receiver": "",
 
+    "longbridge.app_key": "",
+    "longbridge.app_secret": "",
+    "longbridge.access_token": "",
+
     "datafeed.key": "",
     "datafeed.app_secret": "",
     "datafeed.access_token": "",

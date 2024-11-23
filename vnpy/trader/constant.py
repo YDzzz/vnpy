@@ -83,15 +83,15 @@ class Exchange(Enum):
     Exchange.
     """
     # Chinese
-    CFFEX = "CFFEX"         # China Financial Futures Exchange
-    SHFE = "SHFE"           # Shanghai Futures Exchange
-    CZCE = "CZCE"           # Zhengzhou Commodity Exchange
-    DCE = "DCE"             # Dalian Commodity Exchange
-    INE = "INE"             # Shanghai International Energy Exchange
-    GFEX = "GFEX"           # Guangzhou Futures Exchange
-    SSE = "SSE"             # Shanghai Stock Exchange
-    SZSE = "SZSE"           # Shenzhen Stock Exchange
-    BSE = "BSE"             # Beijing Stock Exchange
+    # CFFEX = "CFFEX"         # China Financial Futures Exchange
+    # SHFE = "SHFE"           # Shanghai Futures Exchange
+    # CZCE = "CZCE"           # Zhengzhou Commodity Exchange
+    # DCE = "DCE"             # Dalian Commodity Exchange
+    # INE = "INE"             # Shanghai International Energy Exchange
+    # GFEX = "GFEX"           # Guangzhou Futures Exchange
+    # SSE = "SSE"             # Shanghai Stock Exchange
+    # SZSE = "SZSE"           # Shenzhen Stock Exchange
+    # BSE = "BSE"             # Beijing Stock Exchange
     # SHHK = "SHHK"           # Shanghai-HK Stock Connect
     # SZHK = "SZHK"           # Shenzhen-HK Stock Connect
     # SGE = "SGE"             # Shanghai Gold Exchange
@@ -100,7 +100,7 @@ class Exchange(Enum):
     # XBOND = "XBOND"         # CFETS X-Bond Anonymous Trading System
     #
     # # Global
-    # SMART = "SMART"         # Smart Router for US stocks
+    SMART = "SMART"         # Smart Router for US stocks
     # NYSE = "NYSE"           # New York Stock Exchnage
     # NASDAQ = "NASDAQ"       # Nasdaq Exchange
     # ARCA = "ARCA"           # ARCA Exchange
@@ -108,7 +108,7 @@ class Exchange(Enum):
     # ISLAND = "ISLAND"       # Nasdaq Island ECN
     # BATS = "BATS"           # Bats Global Markets
     # IEX = "IEX"             # The Investors Exchange
-    AMEX = "AMEX"           # American Stock Exchange
+    # AMEX = "AMEX"           # American Stock Exchange
     # TSE = "TSE"             # Toronto Stock Exchange
     # NYMEX = "NYMEX"         # New York Mercantile Exchange
     # COMEX = "COMEX"         # COMEX of CME
@@ -136,9 +136,9 @@ class Exchange(Enum):
     # # Special Function
     # LOCAL = "LOCAL"         # For local generated data
 
-    HK = 'HK'
-    SH = 'SH'
-    SZ = 'SZ'
+    # HK = 'HK'
+    # SH = 'SH'
+    # SZ = 'SZ'
 
 
 class Currency(Enum):

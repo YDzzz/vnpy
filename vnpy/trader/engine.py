@@ -10,7 +10,6 @@ from queue import Empty, Queue
 from threading import Thread
 from typing import Any, Type, Dict, List, Optional
 
-from src.vnpy_LongPort import LongPortGateway
 from vnpy.event import Event, EventEngine
 from .app import BaseApp
 from .event import (
@@ -76,7 +75,7 @@ class MainEngine:
         self.engines[engine.engine_name] = engine
         return engine
 
-    def add_gateway(self, gateway_class: Type[LongPortGateway], gateway_name: str = "") -> BaseGateway:
+    def add_gateway(self, gateway_class: Type[BaseGateway], gateway_name: str = "") -> BaseGateway:
         """
         Add gateway.
         """
@@ -84,7 +83,7 @@ class MainEngine:
         if not gateway_name:
             gateway_name: str = gateway_class.default_name
 
-        gateway: LongPortGateway = gateway_class(self.event_engine, gateway_name)
+        gateway: BaseGateway = gateway_class(self.event_engine, gateway_name)
         self.gateways[gateway_name] = gateway
 
         # Add gateway supported exchanges into engine
@@ -120,11 +119,11 @@ class MainEngine:
         event: Event = Event(EVENT_LOG, log)
         self.event_engine.put(event)
 
-    def get_gateway(self, gateway_name: str) -> LongPortGateway:
+    def get_gateway(self, gateway_name: str) -> BaseGateway:
         """
         Return gateway object by name.
         """
-        gateway: LongPortGateway = self.gateways.get(gateway_name, None)
+        gateway: BaseGateway = self.gateways.get(gateway_name, None)
         if not gateway:
             self.write_log(_("找不到底层接口：{}").format(gateway_name))
         return gateway
@@ -203,7 +202,7 @@ class MainEngine:
         """
         Send new quote request to a specific gateway.
         """
-        gateway: LongPortGateway = self.get_gateway(gateway_name)
+        gateway: BaseGateway = self.get_gateway(gateway_name)
         if gateway:
             return gateway.send_quote(req)
         else:
@@ -487,6 +486,7 @@ class OmsEngine(BaseEngine):
         """
         Get latest position data by vt_positionid.
         """
+        print(vt_positionid)
         return self.positions.get(vt_positionid, None)
 
     def get_account(self, vt_accountid: str) -> Optional[AccountData]:
