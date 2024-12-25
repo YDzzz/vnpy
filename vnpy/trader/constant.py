@@ -83,21 +83,21 @@ class Exchange(Enum):
     Exchange.
     """
     # Chinese
-    # CFFEX = "CFFEX"         # China Financial Futures Exchange
-    # SHFE = "SHFE"           # Shanghai Futures Exchange
-    # CZCE = "CZCE"           # Zhengzhou Commodity Exchange
-    # DCE = "DCE"             # Dalian Commodity Exchange
-    # INE = "INE"             # Shanghai International Energy Exchange
-    # GFEX = "GFEX"           # Guangzhou Futures Exchange
-    # SSE = "SSE"             # Shanghai Stock Exchange
-    # SZSE = "SZSE"           # Shenzhen Stock Exchange
-    # BSE = "BSE"             # Beijing Stock Exchange
-    # SHHK = "SHHK"           # Shanghai-HK Stock Connect
-    # SZHK = "SZHK"           # Shenzhen-HK Stock Connect
-    # SGE = "SGE"             # Shanghai Gold Exchange
-    # WXE = "WXE"             # Wuxi Steel Exchange
-    # CFETS = "CFETS"         # CFETS Bond Market Maker Trading System
-    # XBOND = "XBOND"         # CFETS X-Bond Anonymous Trading System
+    CFFEX = "CFFEX"         # China Financial Futures Exchange
+    SHFE = "SHFE"           # Shanghai Futures Exchange
+    CZCE = "CZCE"           # Zhengzhou Commodity Exchange
+    DCE = "DCE"             # Dalian Commodity Exchange
+    INE = "INE"             # Shanghai International Energy Exchange
+    GFEX = "GFEX"           # Guangzhou Futures Exchange
+    SSE = "SSE"             # Shanghai Stock Exchange
+    SZSE = "SZSE"           # Shenzhen Stock Exchange
+    BSE = "BSE"             # Beijing Stock Exchange
+    SHHK = "SHHK"           # Shanghai-HK Stock Connect
+    SZHK = "SZHK"           # Shenzhen-HK Stock Connect
+    SGE = "SGE"             # Shanghai Gold Exchange
+    WXE = "WXE"             # Wuxi Steel Exchange
+    CFETS = "CFETS"         # CFETS Bond Market Maker Trading System
+    XBOND = "XBOND"         # CFETS X-Bond Anonymous Trading System
     #
     # # Global
     SMART = "SMART"         # Smart Router for US stocks
@@ -133,8 +133,8 @@ class Exchange(Enum):
     # OTC = "OTC"             # OTC Product (Forex/CFD/Pink Sheet Equity)
     # IBKRATS = "IBKRATS"     # Paper Trading Exchange of IB
     #
-    # # Special Function
-    # LOCAL = "LOCAL"         # For local generated data
+    # Special Function
+    LOCAL = "LOCAL"         # For local generated data
 
     # HK = 'HK'
     # SH = 'SH'

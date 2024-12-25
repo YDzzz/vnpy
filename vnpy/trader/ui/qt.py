@@ -13,7 +13,6 @@ from ..setting import SETTINGS
 from ..utility import get_icon_path
 from ..locale import _
 
-
 Qt = QtCore.Qt
 QtCore.pyqtSignal = QtCore.Signal
 QtWidgets.QAction = QtGui.QAction
@@ -27,7 +26,90 @@ def create_qapp(app_name: str = "VeighNa Trader") -> QtWidgets.QApplication:
     """
     # Set up dark stylesheet
     qapp: QtWidgets.QApplication = QtWidgets.QApplication(sys.argv)
-    qapp.setStyleSheet(qdarkstyle.load_stylesheet(qt_api="pyside6"))
+    qapp.setStyleSheet("""
+    QMainWindow {
+        background-color: #202020;
+        color: #EDEDED;
+    }
+    QWidget {
+        border-radius: 4px;
+        background-color: #272727;
+        color: #EDEDED;
+    }
+    QLabel {
+        color: #EDEDED;
+    }
+    /**/
+    QLineEdit {
+        background-color: #3E3E3E;
+        color: #EDEDED;
+    }
+    
+    /*下拉列表*/
+    QComboBox {
+        background-color: #3E3E3E;
+        color: #EDEDED;
+    }
+    QComboBox QAbstractItemView {
+        background-color: #2B2B2B;
+        color: #EDEDED;
+    }
+    QComboBox QAbstractItemView::item {
+        border: 3px solid #2B2B2B;
+    }
+    QComboBox QAbstractItemView::item:selected {
+        background: #3C3C3C;
+    }
+    QPushButton {
+        background-color: #343434;
+        color: #EDEDED;
+        border-radius: 5px;
+    }
+    /*悬浮窗*/
+    QDockWidget {
+        background-color: #272727;
+        color: #EDEDED;
+    }
+    QDockWidget::title {
+        background-color: #222; /* 标题栏背景颜色 */
+        color: black; /* 标题栏字体颜色 */
+        height: 20px; /* 标题栏高度 */
+    }
+    
+    QHeaderView::section {
+        border: 1px solid #202020;
+        background-color: #272727;
+        color: #EDEDED;
+    }
+    QTableWidget::item {
+        background-color: #272727;
+    }
+    /*工具栏颜色修改*/
+    QToolBar QToolButton {
+        background: #202020;
+        border: 10px solid transparent;
+        border-radius: 4px;
+    }
+    QToolBar QToolButton:hover {
+        background: #282828;
+        border-radius: 4px;
+    }
+    QToolBar {
+        background: #202020;
+    }
+    /*菜单栏样式*/
+    QMenuBar {
+        background-color: #202020;
+        color: #EDEDED;
+    }
+    QMenuBar::item:selected {
+        background-color: #272727;
+    }
+    QMenu {
+            background-color: #343434;
+            color: #EDEDED;
+        }
+    """)
 
     # Set up font
     font: QtGui.QFont = QtGui.QFont(SETTINGS["font.family"], SETTINGS["font.size"])
@@ -123,3 +205,13 @@ class ExceptionWidget(QtWidgets.QWidget):
     def _open_community(self) -> None:
         """"""
         webbrowser.open("https://www.vnpy.com/forum/forum/2-ti-wen-qiu-zhu")
+
+
+# 定义动画窗口类
+class SplashScreen(QtWidgets.QLabel):
+    def __init__(self):
+        super().__init__()
+        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)  # 窗口置顶
+        self.setPixmap(QtGui.QPixmap("ico/bg37.jpg"))  # 设置开机动画图片
+        self.resize(self.pixmap().size())  # 调整窗口大小以适应图片
+        self.show()

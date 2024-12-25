@@ -39,8 +39,8 @@ from ..setting import SETTING_FILENAME, SETTINGS
 from ..locale import _
 
 
-COLOR_LONG = QtGui.QColor("red")
-COLOR_SHORT = QtGui.QColor("green")
+COLOR_LONG = QtGui.QColor(255, 174, 201)
+COLOR_SHORT = QtGui.QColor(160, 255, 160)
 COLOR_BID = QtGui.QColor(255, 174, 201)
 COLOR_ASK = QtGui.QColor(160, 255, 160)
 COLOR_BLACK = QtGui.QColor("black")
@@ -118,7 +118,7 @@ class BidCell(BaseCell):
         """"""
         super().__init__(content, data)
 
-        self.setForeground(COLOR_BID)
+        self.setForeground(QtGui.QBrush(COLOR_BID))
 
 
 class AskCell(BaseCell):
@@ -130,7 +130,7 @@ class AskCell(BaseCell):
         """"""
         super().__init__(content, data)
 
-        self.setForeground(COLOR_ASK)
+        self.setForeground(QtGui.QBrush(COLOR_ASK))
 
 
 class PnlCell(BaseCell):
