@@ -702,6 +702,13 @@ class TradingWidget(QtWidgets.QWidget):
         self.symbol_line: QtWidgets.QLineEdit = QtWidgets.QLineEdit()
         self.symbol_line.returnPressed.connect(self.set_vt_symbol)
 
+        # 添加订阅和取消订阅按钮
+        subscribe_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("订阅"))
+        subscribe_button.clicked.connect(self.subscribe_symbol)
+        
+        unsubscribe_button: QtWidgets.QPushButton = QtWidgets.QPushButton(_("取消"))
+        unsubscribe_button.clicked.connect(self.unsubscribe_symbol)
+
         self.name_line: QtWidgets.QLineEdit = QtWidgets.QLineEdit()
         self.name_line.setReadOnly(True)
 
@@ -759,6 +766,32 @@ class TradingWidget(QtWidgets.QWidget):
         grid.addWidget(self.gateway_combo, 8, 1, 1, 2)
         grid.addWidget(send_button, 9, 0, 1, 3)
         grid.addWidget(cancel_button, 10, 0, 1, 3)
+
+        # 创建水平布局放置两个按钮
+        button_hbox = QtWidgets.QHBoxLayout()
+        button_hbox.setSpacing(5)  # 设置按钮之间的间距为4像素
+        button_hbox.setContentsMargins(0, 0, 0, 0)  # 移除边距
+        
+        # 设置按钮等宽并填充各自的空间
+        subscribe_button.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Fixed
+        )
+        unsubscribe_button.setSizePolicy(
+            QtWidgets.QSizePolicy.Expanding,
+            QtWidgets.QSizePolicy.Fixed
+        )
+        
+        # 添加按钮到水平布局
+        button_hbox.addWidget(subscribe_button)
+        button_hbox.addWidget(unsubscribe_button)
+        
+        # 创建容器widget来包含水平布局
+        button_widget = QtWidgets.QWidget()
+        button_widget.setLayout(button_hbox)
+        
+        # 将容器widget添加到网格布局，占用3列
+        grid.addWidget(button_widget, 11, 0, 1, 3)
 
         # Market depth display area
         bid_color: str = "rgb(255,174,201)"
@@ -1029,6 +1062,54 @@ class TradingWidget(QtWidgets.QWidget):
                 self.offset_combo.findText(Offset.CLOSE.value)
             )
             self.volume_line.setText(str(abs(data.volume)))
+
+    def subscribe_symbol(self) -> None:
+        """
+        Subscribe to current symbol.
+        """
+        symbol: str = str(self.symbol_line.text())
+        if not symbol:
+            return
+
+        exchange_value: str = str(self.exchange_combo.currentText())
+        vt_symbol: str = f"{symbol}.{exchange_value}"
+
+        # Get gateway name
+        contract: ContractData = self.main_engine.get_contract(vt_symbol)
+        if contract:
+            gateway_name: str = contract.gateway_name
+        else:
+            gateway_name: str = self.gateway_combo.currentText()
+
+        # Subscribe market data
+        req: SubscribeRequest = SubscribeRequest(
+            symbol=symbol, exchange=Exchange(exchange_value)
+        )
+        self.main_engine.subscribe(req, gateway_name)
+
+    def unsubscribe_symbol(self) -> None:
+        """
+        Unsubscribe from current symbol.
+        """
+        symbol: str = str(self.symbol_line.text())
+        if not symbol:
+            return
+
+        exchange_value: str = str(self.exchange_combo.currentText())
+        vt_symbol: str = f"{symbol}.{exchange_value}"
+
+        # Get gateway name
+        contract: ContractData = self.main_engine.get_contract(vt_symbol)
+        if contract:
+            gateway_name: str = contract.gateway_name
+        else:
+            gateway_name: str = self.gateway_combo.currentText()
+
+        # Unsubscribe market data
+        req: SubscribeRequest = SubscribeRequest(
+            symbol=symbol, exchange=Exchange(exchange_value)
+        )
+        self.main_engine.unsubscribe(req, gateway_name)
 
 
 class ActiveOrderMonitor(OrderMonitor):

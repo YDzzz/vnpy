@@ -58,8 +58,8 @@ class TestStrategy(CtaTemplate):
         """
         if self.test_all_done:
             return
-        self.last_tick = tick
 
+        self.last_tick = tick
 
         self.tick_count += 1
         if self.tick_count >= self.test_trigger:
@@ -71,7 +71,7 @@ class TestStrategy(CtaTemplate):
                 start = time()
                 test_func()
                 time_cost = (time() - start) * 1000
-                self.write_log(f"耗时%s毫秒{time_cost}")
+                self.write_log("耗时%s毫秒") % (time_cost)
             else:
                 self.write_log("测试已全部完成")
                 self.test_all_done = True
@@ -104,17 +104,17 @@ class TestStrategy(CtaTemplate):
 
     def test_market_order(self):
         """"""
-        self.buy(self.last_tick.limit_up, 100)
+        self.buy(self.last_tick.limit_up, 1)
         self.write_log("执行市价单测试")
 
     def test_limit_order(self):
         """"""
-        self.buy(self.last_tick.limit_down, 100)
+        self.buy(self.last_tick.limit_down, 1)
         self.write_log("执行限价单测试")
 
     def test_stop_order(self):
         """"""
-        self.buy(self.last_tick.ask_price_1, 100, True)
+        self.buy(self.last_tick.ask_price_1, 1, True)
         self.write_log("执行停止单测试")
 
     def test_cancel_all(self):

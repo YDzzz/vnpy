@@ -38,8 +38,8 @@ from vnpy.trader.constant import (
     Status
 )
 from vnpy.trader.utility import load_json, save_json, extract_vt_symbol, round_to
-from model.vnpy_datamanager.mysql_database import BaseDatabase, get_database, DB_TZ
-from model.vnpy_datamanager.tushare.tushare_datafeed import BaseDatafeed, get_datafeed
+from ..vnpy_datamanager.mysql_database import BaseDatabase, get_database, DB_TZ
+from ..vnpy_datamanager.tushare.tushare_datafeed import BaseDatafeed, get_datafeed
 
 from .base import (
     APP_NAME,
@@ -786,9 +786,11 @@ class CtaEngine(BaseEngine):
         Load strategy class from source code.
         """
         path1: Path = Path(__file__).parent.joinpath("strategies")
+        print(path1)
         self.load_strategy_class_from_folder(path1, "vnpy_ctastrategy.strategies")
 
-        path2: Path = Path.cwd().joinpath("strategies")
+        path2: Path = Path(__file__).parent.joinpath("strategies")
+        print(path2)
         self.load_strategy_class_from_folder(path2, "strategies")
 
     def load_strategy_class_from_folder(self, path: Path, module_name: str = "") -> None:
@@ -820,8 +822,11 @@ class CtaEngine(BaseEngine):
                     and value not in {CtaTemplate, TargetPosTemplate}
                 ):
                     self.classes[value.__name__] = value
-        except:  # noqa
-            msg: str = _("策略文件{}加载失败，触发异常：\n{}").format(module_name, traceback.format_exc())
+        except Exception as e:  # 明确捕获Exception而不是使用裸except
+            msg: str = _("策略文件[{}]加载失败，触发异常：\n{}").format(
+                module_name,
+                traceback.format_exc()
+            )
             self.write_log(msg)
 
     def load_strategy_data(self) -> None:

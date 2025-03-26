@@ -1,6 +1,8 @@
 import ctypes
+from pathlib import Path
 import platform
 import sys
+from time import sleep
 import traceback
 import webbrowser
 import types
@@ -31,84 +33,284 @@ def create_qapp(app_name: str = "VeighNa Trader") -> QtWidgets.QApplication:
         background-color: #202020;
         color: #EDEDED;
     }
+    
     QWidget {
         border-radius: 4px;
         background-color: #272727;
         color: #EDEDED;
     }
+    
     QLabel {
         color: #EDEDED;
+        background-color: transparent;
     }
-    /**/
+    
+    /*输入框*/
     QLineEdit {
         background-color: #3E3E3E;
         color: #EDEDED;
+        border: 1px solid #555555;
+        border-radius: 3px;
+        padding: 2px;
+        min-height: 16px;
+        max-height: 16px;
+    }
+    
+    QLineEdit:hover {
+        background-color: #4E4E4E;
+        border: 1px solid #666666;
+    }
+    
+    QLineEdit:focus {
+        background-color: #505050;
+        border: 1px solid #666666;
     }
     
     /*下拉列表*/
     QComboBox {
         background-color: #3E3E3E;
         color: #EDEDED;
+        border: 1px solid #555555;
+        border-radius: 3px;
+        padding: 2px;
+        min-height: 16px;
+        max-height: 16px;
+        min-width: 6em;
     }
+    
+    QComboBox:hover {
+        background-color: #4E4E4E;
+        border: 1px solid #666666;
+    }
+    
+    QComboBox:on {
+        background-color: #505050;
+    }
+    
+    QComboBox::drop-down {
+        border: none;
+        width: 16px;
+    }
+    
+    QComboBox::down-arrow {
+        image: url(ico/down_arrow.png);
+        width: 8px;
+        height: 8px;
+    }
+    
     QComboBox QAbstractItemView {
         background-color: #2B2B2B;
         color: #EDEDED;
+        selection-background-color: #3C3C3C;
+        selection-color: #FFFFFF;
+        border: 1px solid #555555;
     }
+    
     QComboBox QAbstractItemView::item {
-        border: 3px solid #2B2B2B;
+        min-height: 16px;
+        padding: 2px;
     }
+    
+    QComboBox QAbstractItemView::item:hover {
+        background-color: #444444;
+    }
+    
     QComboBox QAbstractItemView::item:selected {
         background: #3C3C3C;
     }
+    
+    /*按钮*/
     QPushButton {
         background-color: #343434;
         color: #EDEDED;
-        border-radius: 5px;
+        border: 1px solid #555555;
+        border-radius: 4px;
+        padding: 5px 15px;
+        min-width: 80px;
     }
+    
+    QPushButton:hover {
+        background-color: #404040;
+        border: 1px solid #666666;
+    }
+    
+    QPushButton:pressed {
+        background-color: #2A2A2A;
+    }
+    
+    QPushButton:disabled {
+        background-color: #2A2A2A;
+        color: #666666;
+        border: 1px solid #444444;
+    }
+    
+    /*表格*/
+    QTableWidget {
+        background-color: #2B2B2B;
+        color: #EDEDED;
+        border: 1px solid #555555;
+        gridline-color: #3E3E3E;
+    }
+    
+    QTableWidget::item {
+        padding: 2px;
+        min-height: 16px;
+        background-color: #2B2B2B;
+    }
+    
+    QTableWidget::item:selected {
+        background-color: #3C3C3C;
+        color: #FFFFFF;
+    }
+    
+    QTableWidget::item:focus {
+        background-color: #3C3C3C;
+        color: #FFFFFF;
+    }
+    
+    QHeaderView::section {
+        background-color: #3E3E3E;
+        color: #EDEDED;
+        border: 1px solid #555555;
+        padding: 2px;
+        min-height: 16px;
+    }
+    
+    QTableCornerButton::section {
+        background-color: #3E3E3E;
+        border: 1px solid #555555;
+    }
+    
+    /*滚动条*/
+    QScrollBar:vertical {
+        background-color: #2A2A2A;
+        width: 12px;
+        margin: 0;
+    }
+    
+    QScrollBar::handle:vertical {
+        background-color: #4A4A4A;
+        min-height: 20px;
+        border-radius: 6px;
+    }
+    
+    QScrollBar::handle:vertical:hover {
+        background-color: #555555;
+    }
+    
+    QScrollBar:horizontal {
+        background-color: #2A2A2A;
+        height: 12px;
+        margin: 0;
+    }
+    
+    QScrollBar::handle:horizontal {
+        background-color: #4A4A4A;
+        min-width: 20px;
+        border-radius: 6px;
+    }
+    
+    QScrollBar::handle:horizontal:hover {
+        background-color: #555555;
+    }
+    
     /*悬浮窗*/
     QDockWidget {
         background-color: #272727;
         color: #EDEDED;
-    }
-    QDockWidget::title {
-        background-color: #222; /* 标题栏背景颜色 */
-        color: black; /* 标题栏字体颜色 */
-        height: 20px; /* 标题栏高度 */
+        titlebar-close-icon: url(ico/close.png);
+        titlebar-normal-icon: url(ico/restore.png);
     }
     
-    QHeaderView::section {
-        border: 1px solid #202020;
-        background-color: #272727;
-        color: #EDEDED;
+    QDockWidget::title {
+        background-color: #222222;
+        padding: 6px;
+        spacing: 4px;
     }
-    QTableWidget::item {
-        background-color: #272727;
-    }
-    /*工具栏颜色修改*/
-    QToolBar QToolButton {
-        background: #202020;
-        border: 10px solid transparent;
-        border-radius: 4px;
-    }
-    QToolBar QToolButton:hover {
-        background: #282828;
-        border-radius: 4px;
-    }
+    
+    /*工具栏*/
     QToolBar {
         background: #202020;
+        spacing: 6px;
+        padding: 3px;
     }
-    /*菜单栏样式*/
+    
+    QToolBar QToolButton {
+        background: #202020;
+        border: 1px solid transparent;
+        border-radius: 4px;
+        padding: 5px;
+    }
+    
+    QToolBar QToolButton:hover {
+        background: #282828;
+        border: 1px solid #3A3A3A;
+    }
+    
+    /*菜单栏*/
     QMenuBar {
         background-color: #202020;
         color: #EDEDED;
     }
-    QMenuBar::item:selected {
-        background-color: #272727;
+    
+    QMenuBar::item {
+        padding: 6px 10px;
+        background: transparent;
     }
+    
+    QMenuBar::item:selected {
+        background-color: #2A2A2A;
+    }
+    
     QMenu {
-            background-color: #343434;
-            color: #EDEDED;
-        }
+        background-color: #343434;
+        color: #EDEDED;
+        border: 1px solid #555555;
+    }
+    
+    QMenu::item {
+        padding: 6px 20px;
+    }
+    
+    QMenu::item:selected {
+        background-color: #3C3C3C;
+    }
+    
+    /*标签页*/
+    QTabWidget::pane {
+        border: 1px solid #3A3A3A;
+    }
+    
+    QTabBar::tab {
+        background-color: #2A2A2A;
+        color: #EDEDED;
+        padding: 8px 12px;
+        border: 1px solid #3A3A3A;
+        border-bottom: none;
+        margin-right: 2px;
+    }
+    
+    QTabBar::tab:selected {
+        background-color: #343434;
+    }
+    
+    QTabBar::tab:hover {
+        background-color: #303030;
+    }
+    
+    /*分组框*/
+    QGroupBox {
+        border: 1px solid #3A3A3A;
+        margin-top: 1.5ex;
+        padding-top: 1.5ex;
+    }
+    
+    QGroupBox::title {
+        color: #EDEDED;
+        subcontrol-origin: margin;
+        subcontrol-position: top left;
+        padding: 0 3px;
+    }
     """)
 
     # Set up font
@@ -208,10 +410,58 @@ class ExceptionWidget(QtWidgets.QWidget):
 
 
 # 定义动画窗口类
-class SplashScreen(QtWidgets.QLabel):
+class SplashScreen(QtWidgets.QWidget):
     def __init__(self):
         super().__init__()
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)  # 窗口置顶
-        self.setPixmap(QtGui.QPixmap("ico/bg37.jpg"))  # 设置开机动画图片
-        self.resize(self.pixmap().size())  # 调整窗口大小以适应图片
-        self.show()
+        
+        # 创建垂直布局
+        layout = QtWidgets.QVBoxLayout()
+        
+        # 添加图片标签
+        image_label = QtWidgets.QLabel(self)
+        current_dir = Path(__file__).parent
+        pixmap = QtGui.QPixmap(str(current_dir / "ico" / "bg37.jpg"))
+        scaled_pixmap = pixmap.scaled(720, 480,  
+                                    QtCore.Qt.KeepAspectRatio,
+                                    QtCore.Qt.SmoothTransformation)
+        image_label.setPixmap(scaled_pixmap)
+        layout.addWidget(image_label)
+        
+        # 添加加载状态标签
+        self.status_label = QtWidgets.QLabel("正在加载组件...", self)
+        self.status_label.setAlignment(QtCore.Qt.AlignCenter)
+        self.status_label.setStyleSheet("color: white; font-size: 14px;")
+        layout.addWidget(self.status_label)
+        
+        # 添加进度条
+        self.progress = QtWidgets.QProgressBar(self)
+        self.progress.setStyleSheet("""
+            QProgressBar {
+                border: 2px solid grey;
+                border-radius: 5px;
+                text-align: center;
+            }
+            QProgressBar::chunk {
+                background-color: #4CAF50;
+            }
+        """)
+        layout.addWidget(self.progress)
+        
+        layout.setContentsMargins(20, 20, 20, 20)
+        self.setLayout(layout)
+        
+        # 设置窗口属性
+        self.setFixedSize(720, 480)
+        self.setWindowFlags(QtCore.Qt.FramelessWindowHint | QtCore.Qt.WindowStaysOnTopHint)
+        
+        # 移动到屏幕中央
+        screen = QtWidgets.QApplication.primaryScreen().geometry()
+        self.move((screen.width() - self.width()) // 2,
+                 (screen.height() - self.height()) // 2)
+    
+    def update_status(self, message: str, progress: int):
+        """更新加载状态和进度"""
+        self.status_label.setText(message)
+        self.progress.setValue(progress)
+        QtWidgets.QApplication.processEvents()
+        

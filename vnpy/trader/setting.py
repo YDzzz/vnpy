@@ -32,7 +32,7 @@ SETTINGS: Dict[str, Any] = {
     "datafeed.key": "",
     "datafeed.app_secret": "",
     "datafeed.access_token": "",
-    'datafeed.name': '',
+    'datafeed.username': '',
     'datafeed.password': '',
 
     "database.timezone": get_localzone_name(),
@@ -41,7 +41,7 @@ SETTINGS: Dict[str, Any] = {
     "database.host": "localhost",
     "database.port": 3307,
     "database.user": "root",
-    "database.password": "123456"
+    "database.password": "123"
 }
 
 

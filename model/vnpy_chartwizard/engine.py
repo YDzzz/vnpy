@@ -59,6 +59,7 @@ class ChartWizardEngine(BaseEngine):
             start=start,
             end=end
         )
+        print("req", req)
 
         contract: Optional[ContractData] = self.main_engine.get_contract(vt_symbol)
         if contract:
@@ -73,8 +74,6 @@ class ChartWizardEngine(BaseEngine):
                 interval,
                 start,
                 end
-            )
-        print(data)
-
+            )                 
         event: Event = Event(EVENT_CHART_HISTORY, data)
         self.event_engine.put(event)

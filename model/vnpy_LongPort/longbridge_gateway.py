@@ -147,6 +147,9 @@ class LongBridgeGateway(BaseGateway):
     def handle_quote(self, symbol: str, quote: Union[PushQuote, SecurityQuote]):
         depth = self.quote_ctx.realtime_depth(symbol)
         s, ex = convert_symbol_lb2vt(symbol)
+        if quote.last_done == 0:
+            self.write_log(f"{symbol} last_done is 0, skipping tick update")
+            return
         tick = TickData(
             symbol=s,
             name=self.symbol_names.get(symbol, ""),
@@ -258,9 +261,9 @@ class LongBridgeGateway(BaseGateway):
         if contract_only:
             return
         self.quote_ctx.subscribe(symbols, [SubType.Quote, SubType.Depth], True)
-        for symbol in symbols:
-            self.quote_ctx.subscribe_candlesticks(symbol, Period.Day)
-            self.quote_ctx.subscribe_candlesticks(symbol, Period.Week)
+        # for symbol in symbols:
+        #     self.quote_ctx.subscribe_candlesticks(symbol, Period.Day)
+        #     self.quote_ctx.subscribe_candlesticks(symbol, Period.Week)
 
     def subscribe(self, req: SubscribeRequest) -> None:
         self.subscribe_batch([req])

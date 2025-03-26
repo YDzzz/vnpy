@@ -16,32 +16,36 @@ from vnpy.trader.ui.qt import SplashScreen
 
 def main():
     """"""
+    
     qapp = create_qapp()
     splash = SplashScreen()
-
+    splash.show()
+    
+    # 初始化组件时更新进度
+    splash.update_status("正在初始化引擎...", 0)
     event_engine = EventEngine()
-
     main_engine = MainEngine(event_engine)
-
+    
+    splash.update_status("正在加载网关...", 20)
     main_engine.add_gateway(LongBridgeGateway, "LongPort")
-    #
-    # main_engine.add_app(DataManagerApp)
-    #
-    # main_engine.add_app(CtaStrategyApp)
-    #
-    # main_engine.add_app(DataRecorderApp)
-    #
-    # main_engine.add_app(CtaBacktesterApp)
-    # #
-    #
-    # main_engine.add_app(ChartWizardApp)
-
-    # sleep(3)
-
+    
+    splash.update_status("正在加载数据管理器...", 40)
+    main_engine.add_app(DataManagerApp)
+    
+    splash.update_status("正在加载CTA策略模块...", 60)
+    main_engine.add_app(CtaStrategyApp)
+    
+    splash.update_status("正在加载其他模块...", 80)
+    main_engine.add_app(DataRecorderApp)
+    main_engine.add_app(CtaBacktesterApp)
+    main_engine.add_app(ChartWizardApp)
+    
+    splash.update_status("准备就绪...", 100)
+    
     main_window = MainWindow(main_engine, event_engine)
-    main_window.show()
     splash.close()
-
+    main_window.show()
+    
     qapp.exec()
 
 

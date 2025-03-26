@@ -111,11 +111,11 @@ class ChartWizardWidget(QtWidgets.QWidget):
 
         # Query history data
         end: datetime = datetime.now(ZoneInfo(get_localzone_name()))
-        start: datetime = end - timedelta(days=5)
+        start: datetime = end - timedelta(days=365)
 
         self.chart_engine.query_history(
             vt_symbol,
-            Interval.MINUTE,
+            Interval.DAILY,
             start,
             end
         )
